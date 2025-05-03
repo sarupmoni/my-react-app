@@ -45,16 +45,44 @@ class TaskList extends Component {
   }
 }
 
+class Input extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { value: "" };
+    this.handleChange = this.handleChange.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
+  }
+
+  handleChange(event) {
+    this.setState({ value: event.target.value });
+  }
+
+  handleSubmit(event) {
+    if (event.key === "Enter" && this.state.value) {
+      this.props.addItem(this.state.value);
+      this.state.value = "";
+    }
+  }
+
+  render() {
+    return (
+      <input
+        type="text"
+        value={this.state.value}
+        onChange={this.handleChange}
+        onKeyDown={this.handleSubmit}
+        placeholder="add Items"
+      />
+    );
+  }
+}
+
 class Todo extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      items: [
-        { task: "Buy Milk", done: false, taskId: 1 },
-        { task: "Buy Chocolate", done: false, taskId: 2 },
-      ],
-    };
+    this.state = { items: [], id: 1 };
     this.onToggle = this.onToggle.bind(this);
+    this.addItem = this.addItem.bind(this);
   }
 
   onToggle(taskId) {
@@ -67,10 +95,19 @@ class Todo extends Component {
     });
   }
 
+  addItem(task) {
+    this.setState((prev) => {
+      const items = [...prev.items, { task, done: false, taskId: prev.id }];
+
+      return { items, id: prev.id + 1 };
+    });
+  }
+
   render() {
     return (
       <>
         <h1>Todo</h1>
+        <Input addItem={this.addItem} />
         <TaskList items={this.state.items} onToggle={this.onToggle} />
       </>
     );
