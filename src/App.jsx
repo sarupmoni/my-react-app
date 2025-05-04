@@ -85,10 +85,10 @@ class Todo extends Component {
     return this.props.todos.map((todoItem, index) => (
       <div key={index} className="todo">
         <h1>{todoItem.todo}</h1>
-        <Input addItem={(task) => this.props.addItem(task, index)} />
+        <Input addItem={(task) => this.props.addItem(task, todoItem.todoId)} />
         <TaskList
           items={todoItem.items}
-          onToggle={(taskId) => this.props.onToggle(taskId, index)}
+          onToggle={(taskId) => this.props.onToggle(taskId, todoItem.todoId)}
         />
       </div>
     ));
@@ -125,10 +125,10 @@ class MultipleTodo extends Component {
     });
   }
 
-  addItem(task, todoIndex) {
+  addItem(task, todoId) {
     this.setState((prev) => {
       const todos = prev.todos.map((todo) => {
-        if (todo.todoId !== todoIndex) return todo;
+        if (todo.todoId !== todoId) return todo;
 
         const newItem = {
           task,
