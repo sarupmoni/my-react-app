@@ -1,5 +1,37 @@
 import { Component } from "react";
 
+class Input extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { value: "" };
+    this.handleChange = this.handleChange.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
+  }
+
+  handleChange(event) {
+    this.setState({ value: event.target.value });
+  }
+
+  handleSubmit(event) {
+    if (event.key === "Enter" && this.state.value) {
+      this.props.addItem(this.state.value);
+      this.setState({ value: "" });
+    }
+  }
+
+  render() {
+    return (
+      <input
+        type="text"
+        value={this.state.value}
+        onChange={this.handleChange}
+        onKeyDown={this.handleSubmit}
+        placeholder="add Items"
+      />
+    );
+  }
+}
+
 class Task extends Component {
   constructor(props) {
     super(props);
@@ -33,10 +65,10 @@ class TaskList extends Component {
 
   render() {
     const { items, onToggle } = this.props;
-    return items.map((item) => (
+    return items.map((item, index) => (
       <Task
         done={item.done}
-        key={item.taskId}
+        key={index}
         task={item.task}
         taskId={item.taskId}
         onChange={onToggle}
@@ -45,73 +77,95 @@ class TaskList extends Component {
   }
 }
 
-class Input extends Component {
-  constructor(props) {
-    super(props);
-    this.state = { value: "" };
-    this.handleChange = this.handleChange.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this);
-  }
-
-  handleChange(event) {
-    this.setState({ value: event.target.value });
-  }
-
-  handleSubmit(event) {
-    if (event.key === "Enter" && this.state.value) {
-      this.props.addItem(this.state.value);
-      this.state.value = "";
-    }
-  }
-
-  render() {
-    return (
-      <input
-        type="text"
-        value={this.state.value}
-        onChange={this.handleChange}
-        onKeyDown={this.handleSubmit}
-        placeholder="add Items"
-      />
-    );
-  }
-}
-
 class Todo extends Component {
   constructor(props) {
     super(props);
-    this.state = { items: [], id: 1 };
+  }
+
+  render() {
+    return this.props.todos.map((todoItem, index) => (
+      <div key={index}>
+        <h1>{todoItem.todo}</h1>
+        <Input addItem={(task) => this.props.addItem(task, index)} />
+        <TaskList
+          items={todoItem.items}
+          onToggle={(taskId) => this.props.onToggle(taskId, index)}
+        />
+      </div>
+    ));
+  }
+}
+
+class MultipleTodo extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      todos: [],
+      todoId: 0,
+    };
+    this.addTask = this.addTask.bind(this);
     this.onToggle = this.onToggle.bind(this);
     this.addItem = this.addItem.bind(this);
   }
 
-  onToggle(taskId) {
+  onToggle(taskId, todoId) {
     this.setState((prev) => {
-      return {
-        items: prev.items.map((item) => {
-          return taskId === item.taskId ? { ...item, done: !item.done } : item;
-        }),
-      };
+      const todos = prev.todos.map((todo) => {
+        if (todo.todoId !== todoId) return todo;
+
+        const updatedItems = todo.items.map((item) =>
+          item.taskId === taskId ? { ...item, done: !item.done } : item
+        );
+
+        return { ...todo, items: updatedItems };
+      });
+
+      return { todos };
     });
   }
 
-  addItem(task) {
+  addItem(task, todoIndex) {
     this.setState((prev) => {
-      const items = [...prev.items, { task, done: false, taskId: prev.id }];
+      const todos = prev.todos.map((todo) => {
+        if (todo.todoId !== todoIndex) return todo;
 
-      return { items, id: prev.id + 1 };
+        const newItem = {
+          task,
+          done: false,
+          taskId: todo.items.length,
+        };
+
+        return {
+          ...todo,
+          items: [...todo.items, newItem],
+        };
+      });
+
+      return { todos };
+    });
+  }
+
+  addTask(todo) {
+    this.setState((prev) => {
+      const todos = [...prev.todos, { todo, todoId: prev.todoId, items: [] }];
+
+      return { todos, todoId: prev.todoId + 1 };
     });
   }
 
   render() {
     return (
       <>
-        <h1>Todo</h1>
-        <Input addItem={this.addItem} />
-        <TaskList items={this.state.items} onToggle={this.onToggle} />
+        <h1>Todo List</h1>
+        <Input addItem={this.addTask} />
+        <Todo
+          todos={this.state.todos}
+          onToggle={this.onToggle}
+          addItem={this.addItem}
+        />
       </>
     );
   }
 }
 
-export default Todo;
+export default MultipleTodo;
