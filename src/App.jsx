@@ -35,23 +35,22 @@ class Input extends Component {
 class Task extends Component {
   constructor(props) {
     super(props);
-    this.onChange = this.onChange.bind(this);
+    this.onClick = this.onClick.bind(this);
   }
 
-  onChange() {
-    this.props.onChange(this.props.taskId);
+  onClick() {
+    this.props.onClick(this.props.taskId);
   }
 
   render() {
     return (
       <>
-        <div>
-          <input
-            type="checkbox"
-            checked={this.props.done}
-            onChange={this.onChange}
-          />
-          <span>{this.props.task}</span>
+        <div
+          className="task"
+          style={{ textDecorationLine: this.props.done }}
+          onClick={this.onClick}
+        >
+          {this.props.task}
         </div>
       </>
     );
@@ -71,7 +70,7 @@ class TaskList extends Component {
         key={index}
         task={item.task}
         taskId={item.taskId}
-        onChange={onToggle}
+        onClick={onToggle}
       />
     ));
   }
@@ -84,7 +83,7 @@ class Todo extends Component {
 
   render() {
     return this.props.todos.map((todoItem, index) => (
-      <div key={index}>
+      <div key={index} className="todo">
         <h1>{todoItem.todo}</h1>
         <Input addItem={(task) => this.props.addItem(task, index)} />
         <TaskList
@@ -114,7 +113,9 @@ class MultipleTodo extends Component {
         if (todo.todoId !== todoId) return todo;
 
         const updatedItems = todo.items.map((item) =>
-          item.taskId === taskId ? { ...item, done: !item.done } : item
+          item.taskId === taskId
+            ? { ...item, done: item.done === "none" ? "line-through" : "none" }
+            : item
         );
 
         return { ...todo, items: updatedItems };
@@ -131,7 +132,7 @@ class MultipleTodo extends Component {
 
         const newItem = {
           task,
-          done: false,
+          done: "none",
           taskId: todo.items.length,
         };
 
@@ -156,8 +157,10 @@ class MultipleTodo extends Component {
   render() {
     return (
       <>
-        <h1>Todo List</h1>
-        <Input addItem={this.addTask} />
+        <div className="todo-input">
+          <h1>Todo List</h1>
+          <Input addItem={this.addTask} />
+        </div>
         <Todo
           todos={this.state.todos}
           onToggle={this.onToggle}

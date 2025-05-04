@@ -1,5 +1,31 @@
+* {
+  padding: 0px;
+  margin: 0px;
+}
+
 #root {
   max-width: 1280px;
   margin: 0 auto;
   padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+input {
+  margin: 0.3rem 0.5rem 0.3rem 0rem;
+}
+
+.todo {
+  margin: 0.5rem;
+  padding: 1rem;
+  border: 1px solid blue;
+}
+
+.task {
+  margin: 0.5rem;
+  padding: 0.5rem;
+  border: 1px solid red;
+  cursor: pointer;
 }
